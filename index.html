@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#17112f">
+  <meta name="description" content="Eonix POS — a modern point of sale workspace for growing businesses.">
+  <title>Eonix POS | Eonix Tech Studio</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/styles.css">
+</head>
+<body>
+  <div id="authScreen" class="auth-screen">
+    <div class="auth-card">
+      <div class="brand-mark">E</div>
+      <p class="eyebrow">EONIX TECH STUDIO</p>
+      <h1>Eonix <span>POS</span></h1>
+      <p class="muted">A smarter workspace for everyday sales.</p>
+      <form id="authForm">
+        <label>Email address<input id="email" type="email" autocomplete="email" required placeholder="you@business.com"></label>
+        <label>Password<input id="password" type="password" autocomplete="current-password" required placeholder="Your password"></label>
+        <button class="primary full" type="submit">Sign in</button>
+        <button class="ghost full" id="signupBtn" type="button">Create owner account</button>
+      </form>
+      <p id="authMessage" class="message"></p>
+      <small>Connect your Supabase project in <code>assets/js/config.js</code> first.</small>
+    </div>
+  </div>
+
+  <div id="appShell" class="app-shell hidden">
+    <aside class="sidebar">
+      <a class="brand" href="#"><span class="brand-mark small">E</span><span><b>Eonix</b><small>POINT OF SALE</small></span></a>
+      <div class="workspace"><span class="status-dot"></span><span id="businessName">My Business</span></div>
+      <nav>
+        <button class="nav-link active" data-page="dashboard"><span>◫</span> Overview</button>
+        <button class="nav-link" data-page="pos"><span>▣</span> Checkout</button>
+        <button class="nav-link" data-page="products"><span>◇</span> Products & Stock</button>
+        <button class="nav-link" data-page="sales"><span>↗</span> Sales history</button>
+        <button class="nav-link" data-page="customers"><span>◎</span> Customers</button>
+        <button class="nav-link" data-page="reports"><span>▥</span> Reports</button>
+        <button class="nav-link" data-page="settings"><span>⚙</span> Settings</button>
+      </nav>
+      <div class="sidebar-bottom">
+        <div class="plan-card"><span class="eyebrow">YOUR WORKSPACE</span><b>Business edition</b><small>Manage sales in one place.</small></div>
+        <button id="signOutBtn" class="nav-link"><span>⇥</span> Sign out</button>
+      </div>
+    </aside>
+
+    <main class="main">
+      <header class="topbar">
+        <div><p class="eyebrow" id="pageEyebrow">BUSINESS OVERVIEW</p><h2 id="pageTitle">Overview</h2></div>
+        <div class="top-actions"><span class="date-label" id="todayLabel"></span><button class="icon-btn" id="themeBtn" title="Toggle theme">◐</button><div class="avatar" id="userAvatar">E</div></div>
+      </header>
+
+      <section class="page active" id="page-dashboard">
+        <div class="welcome-row"><div><h3>Good to see you.</h3><p class="muted">Here’s what’s happening with your business today.</p></div><button class="primary" data-goto="pos">＋ New sale</button></div>
+        <div class="stats-grid">
+          <article class="stat-card"><span>Today's sales</span><strong id="statToday">RM 0.00</strong><small id="statOrders">0 completed orders</small></article>
+          <article class="stat-card"><span>Gross sales</span><strong id="statGross">RM 0.00</strong><small>All recorded sales</small></article>
+          <article class="stat-card"><span>Products</span><strong id="statProducts">0</strong><small>Active catalogue items</small></article>
+          <article class="stat-card"><span>Low stock</span><strong id="statLow">0</strong><small>Items at or below threshold</small></article>
+        </div>
+        <div class="content-grid">
+          <article class="panel"><div class="panel-heading"><div><h3>Recent transactions</h3><p class="muted">Latest completed sales</p></div><button class="text-btn" data-goto="sales">View all</button></div><div id="recentSales" class="table-wrap"><div class="empty-state">Your recent sales will appear here.</div></div></article>
+          <article class="panel"><div class="panel-heading"><div><h3>Stock watch</h3><p class="muted">Products that need attention</p></div><button class="text-btn" data-goto="products">Manage</button></div><div id="stockWatch" class="stock-list"><div class="empty-state">No stock alerts.</div></div></article>
+        </div>
+      </section>
+
+      <section class="page" id="page-pos">
+        <div class="pos-layout">
+          <div class="panel catalogue-panel">
+            <div class="panel-heading"><div><h3>Product catalogue</h3><p class="muted">Select an item to add it to the sale.</p></div></div>
+            <input id="productSearch" class="search" placeholder="Search product or SKU...">
+            <div id="posProducts" class="product-grid"><div class="empty-state">Loading products…</div></div>
+          </div>
+          <div class="panel cart-panel">
+            <div class="panel-heading"><div><h3>Current sale</h3><p class="muted">Review items before checkout.</p></div><button class="text-btn" id="clearCartBtn">Clear</button></div>
+            <label class="compact-label">Customer (optional)<select id="saleCustomer"><option value="">Walk-in customer</option></select></label>
+            <div id="cartItems" class="cart-items"><div class="empty-state">Your cart is empty.</div></div>
+            <div class="cart-summary"><div><span>Subtotal</span><b id="cartSubtotal">RM 0.00</b></div><div><span>Discount (RM)</span><input id="discountInput" type="number" min="0" step="0.01" value="0"></div><div class="total-line"><span>Total</span><strong id="cartTotal">RM 0.00</strong></div></div>
+            <label class="compact-label">Payment method<select id="paymentMethod"><option value="cash">Cash</option><option value="bank_transfer">Bank transfer (record only)</option><option value="card_external">Card terminal (record only)</option><option value="other">Other</option></select></label>
+            <button class="primary full" id="completeSaleBtn">Complete sale</button>
+            <p class="tiny muted">This records a sale only. It does not process card or online payments.</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="page" id="page-products">
+        <div class="page-toolbar"><div><h3>Products & inventory</h3><p class="muted">Manage your catalogue and stock levels.</p></div><button class="primary" id="addProductBtn">＋ Add product</button></div>
+        <article class="panel"><div id="productsTable" class="table-wrap"><div class="empty-state">Loading products…</div></div></article>
+      </section>
+
+      <section class="page" id="page-sales">
+        <div class="page-toolbar"><div><h3>Sales history</h3><p class="muted">Review recorded transactions.</p></div><button class="ghost" id="exportSalesBtn">Export CSV</button></div>
+        <article class="panel"><div id="salesTable" class="table-wrap"><div class="empty-state">Loading sales…</div></div></article>
+      </section>
+
+      <section class="page" id="page-customers">
+        <div class="page-toolbar"><div><h3>Customers</h3><p class="muted">Keep customer details together.</p></div><button class="primary" id="addCustomerBtn">＋ Add customer</button></div>
+        <article class="panel"><div id="customersTable" class="table-wrap"><div class="empty-state">Loading customers…</div></div></article>
+      </section>
+
+      <section class="page" id="page-reports">
+        <div class="page-toolbar"><div><h3>Sales reports</h3><p class="muted">A simple view of recorded business performance.</p></div></div>
+        <div class="stats-grid"><article class="stat-card"><span>This month</span><strong id="reportMonth">RM 0.00</strong><small>Completed sales</small></article><article class="stat-card"><span>Average order</span><strong id="reportAverage">RM 0.00</strong><small>Across recorded orders</small></article><article class="stat-card"><span>Transactions</span><strong id="reportCount">0</strong><small>Completed sales</small></article><article class="stat-card"><span>Units sold</span><strong id="reportUnits">0</strong><small>From sale line items</small></article></div>
+        <article class="panel"><div class="panel-heading"><div><h3>Daily sales</h3><p class="muted">Last 7 days</p></div></div><div id="dailyReport" class="bar-report"></div></article>
+      </section>
+
+      <section class="page" id="page-settings">
+        <div class="page-toolbar"><div><h3>Business settings</h3><p class="muted">Set up the details shown in your workspace.</p></div></div>
+        <article class="panel settings-panel">
+          <form id="businessForm">
+            <label>Business name<input id="settingBusinessName" required maxlength="100" placeholder="Your business name"></label>
+            <label>Currency<select id="settingCurrency"><option value="MYR">MYR — Malaysian Ringgit (RM)</option><option value="USD">USD — US Dollar ($)</option><option value="SGD">SGD — Singapore Dollar (S$)</option></select></label>
+            <label>Business email<input id="settingEmail" type="email" placeholder="hello@business.com"></label>
+            <button class="primary" type="submit">Save settings</button>
+          </form>
+        </article>
+        <p class="tiny muted">Multi-branch and staff management are represented in the database foundation and can be added to the interface in a later iteration.</p>
+      </section>
+      <footer>© <span id="year"></span> Eonix Tech Studio <span>·</span> Eonix POS</footer>
+    </main>
+  </div>
+  <div id="modalRoot"></div>
+  <div id="toast" class="toast"></div>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="assets/js/config.js"></script>
+  <script src="assets/js/supabase.js"></script>
+  <script src="assets/js/app.js"></script>
+</body>
+</html>
